@@ -6,7 +6,7 @@ export default defineConfig({
   server: {
     proxy: {
       "/api": {
-        target: "http://127.0.0.1:8000", // Your FastAPI backend
+        target: "https://medical-backend-16ms.onrender.com", // Your FastAPI backend
         changeOrigin: true,
         secure: false,
       },
