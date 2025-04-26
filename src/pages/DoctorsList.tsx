@@ -3,7 +3,7 @@ import { Plus, Edit, Trash2, Calendar, Upload } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import axios from 'axios';
 
-// Update the Doctor interface to use image_filename instead of imageUrl
+
 interface Doctor {
   id: string;
   name: string;
