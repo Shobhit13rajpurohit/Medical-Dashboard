@@ -1,4 +1,3 @@
-
 import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
 import Sidebar from './components/Sidebar';
 import Dashboard from './pages/Dashboard';
@@ -28,7 +27,7 @@ function App() {
           <ProtectedRoute>
             <div className="flex">
               <Sidebar />
-              <main className="flex-1 ml-64 bg-gray-100 min-h-screen">
+              <main className="flex-1 lg:ml-64 bg-gray-100 min-h-screen">
                 <Routes>
                   <Route path="/" element={<Dashboard />} />
                   <Route path="/doctors" element={<DoctorsList />} />
@@ -36,7 +35,6 @@ function App() {
                   <Route path="/doctors/:doctorId/visits/:visitId" element={<VisitPatients />} />
                   <Route path="/total-patients" element={<TotalPatients />} />
                   <Route path="/feedback" element={<Feedback />} />
-                 
                   <Route path="/shop/gallery" element={<ShopGallery />} />
                   <Route path="/doctor-schedule" element={<DoctorSchedule />} />
                 </Routes>
