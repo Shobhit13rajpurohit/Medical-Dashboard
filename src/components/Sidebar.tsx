@@ -95,7 +95,7 @@ const Sidebar = () => {
   return (
     <>
       {/* Mobile menu button */}
-      <div className="lg:hidden fixed top-4 left-4 z-50">
+      <div className="lg:hidden fixed top-4 Right-4 z-50">
         <button 
           onClick={toggleMobileMenu}
           className="p-2 rounded-md bg-indigo-900 text-white shadow-lg"
