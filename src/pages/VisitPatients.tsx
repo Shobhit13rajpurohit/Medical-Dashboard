@@ -298,74 +298,88 @@ const VisitPatients = () => {
   );
 
   // Calculate the dynamic height for patient list based on viewport
-  // Ensuring at least 10 patients are visible before scrolling
-  const calculatePatientListHeight = () => {
-    const rowHeight = 53; // Approximate height of each row in pixels
-    const headerHeight = 48; // Approximate height of the table header
-    const minHeight = (rowHeight * 10) + headerHeight; // Height for 10 patients + header
-    
-    const viewportHeight = window.innerHeight;
-    const otherComponentsHeight = 500; // Approximate height of other UI components
-    const availableHeight = viewportHeight - otherComponentsHeight;
-    
-    // Return either minimum height (10 rows) or available height, whichever is larger
-    return Math.max(minHeight, availableHeight) + 'px';
+  // Using viewport height to make it responsive
+  const getPatientListHeight = () => {
+    // We'll use viewport units to make it responsive
+    return {
+      height: 'calc(100vh - 350px)',
+      minHeight: '300px'
+    };
+  };
+
+  // Function to determine responsive classes for the table
+  const getTableClasses = () => {
+    return "min-w-full table-auto";
+  };
+
+  // Function to handle table display on small screens
+  const isSmallScreen = () => {
+    // This would typically use a media query or window.innerWidth
+    // For demonstration, we'll return false and handle this with CSS
+    return false;
   };
 
   return (
-    <div className="h-screen flex flex-col">
+    <div className="flex flex-col min-h-screen bg-gray-50">
       {/* Fixed Header Area */}
-      <div className="bg-white p-4 sticky top-0 z-10">
-        <div className="flex justify-between items-center mb-6">
-          <div className="flex items-center gap-3">
+      <div className="bg-white p-3 md:p-4 shadow-sm sticky top-0 z-10">
+        {/* Back button and page title */}
+        <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center mb-4 gap-2">
+          <div className="flex items-center gap-2">
             <button 
               onClick={() => navigate(`/doctors/${doctorId}/visits`)} 
               className="text-blue-600 hover:text-blue-800 flex items-center gap-1 transition-colors duration-200"
             >
-              <ArrowLeft size={20} />
-              <span>Back to Visits</span>
+              <ArrowLeft size={18} />
+              <span className="text-sm md:text-base">Back</span>
             </button>
-            <h1 className="text-3xl font-bold ml-2">
+            <h1 className="text-xl md:text-2xl lg:text-3xl font-bold truncate">
               {visit && visit.date ? (
                 <div className="flex items-center gap-2">
-                  <Calendar size={24} className="text-blue-600" />
-                  <span>Visit: {format(new Date(visit.date), 'MMMM d, yyyy')}</span>
+                  <Calendar size={22} className="text-blue-600 hidden sm:inline" />
+                  <span className="truncate">
+                    Visit: {format(new Date(visit.date), 'MMM d, yyyy')}
+                  </span>
                 </div>
               ) : (
                 'Patient List'
               )}
             </h1>
           </div>
+          
+          {/* Visit ID display */}
+          <div className="text-xs md:text-sm text-gray-500 bg-gray-100 px-2 py-1 rounded">
+            Visit ID: <span className="font-mono">{visitId}</span>
+          </div>
         </div>
 
+        {/* Error display */}
         {error && (
-          <div className="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded mb-4 flex items-start justify-between">
+          <div className="bg-red-100 border border-red-400 text-red-700 px-3 py-2 rounded mb-3 flex items-start justify-between text-sm">
             <div className="flex items-center gap-2">
-              <AlertCircle size={20} />
-              <span>{error}</span>
+              <AlertCircle size={16} />
+              <span className="line-clamp-2">{error}</span>
             </div>
-            <button className="ml-4 font-bold" onClick={() => setError(null)}>×</button>
+            <button className="ml-2 font-bold" onClick={() => setError(null)}>×</button>
           </div>
         )}
 
+        {/* Loading indicator */}
         {loading && !patients.length && (
-          <div className="text-center py-4 bg-blue-50 rounded mb-4">
+          <div className="text-center py-3 bg-blue-50 rounded mb-3 text-sm">
             <div className="animate-pulse">Loading...</div>
           </div>
         )}
 
-        <div className="bg-white rounded-lg shadow-md p-6">
-          <div className="mb-4 text-sm text-gray-500">
-            Visit ID: {visitId}
-          </div>
-          
-          <form onSubmit={handleAddPatient} className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
+        {/* Add patient form */}
+        <div className="bg-white rounded-lg shadow-md p-3 md:p-4 mb-4">
+          <form onSubmit={handleAddPatient} className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">
             <input 
               type="text" 
               value={newPatient.name} 
               onChange={(e) => setNewPatient({...newPatient, name: e.target.value})} 
               placeholder="Patient Name" 
-              className="p-2 border rounded focus:ring-2 focus:ring-blue-300 focus:border-blue-500 outline-none" 
+              className="p-2 border rounded focus:ring-2 focus:ring-blue-300 focus:border-blue-500 outline-none text-sm md:text-base" 
               required 
               disabled={loading}
               ref={patientNameInputRef}
@@ -375,125 +389,184 @@ const VisitPatients = () => {
               value={newPatient.contact} 
               onChange={(e) => setNewPatient({...newPatient, contact: e.target.value})} 
               placeholder="Contact" 
-              className="p-2 border rounded focus:ring-2 focus:ring-blue-300 focus:border-blue-500 outline-none" 
+              className="p-2 border rounded focus:ring-2 focus:ring-blue-300 focus:border-blue-500 outline-none text-sm md:text-base" 
               required 
               disabled={loading}
             />
             <button 
               type="submit" 
-              className="bg-green-600 text-white px-4 py-2 rounded flex items-center justify-center gap-2 hover:bg-green-700 transition-colors duration-200"
+              className="bg-green-600 text-white px-3 py-2 rounded flex items-center justify-center gap-1 hover:bg-green-700 transition-colors duration-200 text-sm md:text-base"
               disabled={loading}
             >
               <Plus size={16} /> Add Patient
             </button>
           </form>
+        </div>
 
-          {/* Search bar with patient count */}
-          <div className="flex flex-col md:flex-row justify-between items-start md:items-center mb-4 gap-2">
-            <div className="relative flex-grow w-full md:w-auto">
-              <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                <Search size={18} className="text-gray-400" />
-              </div>
-              <input
-                type="text"
-                placeholder="Search by serial, name or fee status"
-                className="pl-10 p-2 border rounded w-full focus:ring-2 focus:ring-blue-300 focus:border-blue-500 outline-none"
-                value={searchTerm}
-                onChange={(e) => setSearchTerm(e.target.value)}
-              />
+        {/* Search bar with patient count */}
+        <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-2 mb-3">
+          <div className="relative flex-grow w-full sm:w-auto">
+            <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+              <Search size={16} className="text-gray-400" />
             </div>
-            
-            {/* Patient count summary */}
-            <div className="bg-blue-50 px-4 py-2 rounded flex items-center gap-2 text-blue-800 w-full md:w-auto">
-              <UserCheck size={18} />
-              <span className="font-medium">Total Patients: <span className="text-blue-600">{patients.length}</span></span>
-              {searchTerm && (
-                <span className="text-gray-500 text-sm">
-                  (Showing {filteredPatients.length} of {patients.length})
-                </span>
-              )}
-            </div>
+            <input
+              type="text"
+              placeholder="Search by serial, name or status"
+              className="pl-10 p-2 border rounded w-full focus:ring-2 focus:ring-blue-300 focus:border-blue-500 outline-none text-sm"
+              value={searchTerm}
+              onChange={(e) => setSearchTerm(e.target.value)}
+            />
+          </div>
+          
+          {/* Patient count summary */}
+          <div className="bg-blue-50 px-3 py-1 rounded flex items-center gap-1 text-blue-800 w-full sm:w-auto text-sm whitespace-nowrap">
+            <UserCheck size={16} />
+            <span className="font-medium">Patients: <span className="text-blue-600">{patients.length}</span></span>
+            {searchTerm && (
+              <span className="text-gray-500 text-xs">
+                (Showing {filteredPatients.length})
+              </span>
+            )}
           </div>
         </div>
       </div>
 
       {/* Scrollable Patient List Area */}
-      <div className="flex-1 overflow-auto p-4 pt-0">
-        <div className="bg-white rounded-lg shadow-md p-6">
+      <div className="flex-1 overflow-auto p-3 md:p-4 pt-0">
+        <div className="bg-white rounded-lg shadow-md">
           {patients.length > 0 ? (
             <div 
               ref={patientListRef}
               className="overflow-y-auto overflow-x-auto border rounded"
+              style={getPatientListHeight()}
             >
-              <table className="min-w-full">
-                <thead className="sticky top-0 bg-white z-10">
-                  <tr className="bg-gray-50 border-b">
-                    <th className="py-3 px-4 text-left font-semibold">Serial</th>
-                    <th className="py-3 px-4 text-left font-semibold">Name</th>
-                    <th className="py-3 px-4 text-left font-semibold">Contact</th>
-                    <th className="py-3 px-4 text-left font-semibold">Fee Status</th>
-                    <th className="py-3 px-4 text-left font-semibold">Actions</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  {filteredPatients.map((patient, index) => (
-                    <tr 
-                      key={patient.id} 
-                      className="border-b hover:bg-gray-50 transition-colors duration-150"
-                      ref={index === filteredPatients.length - 1 ? lastPatientRef : null}
-                    >
-                      <td className="py-3 px-4">{patient.serial_no}</td>
-                      <td className="py-3 px-4">{patient.name}</td>
-                      <td className="py-3 px-4">{patient.contact}</td>
-                      <td className="py-3 px-4">
-                        <span className={`px-2 py-1 rounded text-sm ${patient.fee_status === 'paid' ? 'bg-green-100 text-green-800' : 'bg-red-100 text-red-800'}`}>
+              {/* For larger screens - Table view */}
+              <div className="hidden md:block">
+                <table className={getTableClasses()}>
+                  <thead className="sticky top-0 bg-white z-10">
+                    <tr className="bg-gray-50 border-b">
+                      <th className="py-2 px-3 text-left font-semibold text-sm">Serial</th>
+                      <th className="py-2 px-3 text-left font-semibold text-sm">Name</th>
+                      <th className="py-2 px-3 text-left font-semibold text-sm">Contact</th>
+                      <th className="py-2 px-3 text-left font-semibold text-sm">Fee Status</th>
+                      <th className="py-2 px-3 text-left font-semibold text-sm">Actions</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {filteredPatients.map((patient, index) => (
+                      <tr 
+                        key={patient.id} 
+                        className="border-b hover:bg-gray-50 transition-colors duration-150"
+                        ref={index === filteredPatients.length - 1 ? lastPatientRef : null}
+                      >
+                        <td className="py-2 px-3 text-sm">{patient.serial_no}</td>
+                        <td className="py-2 px-3 text-sm">{patient.name}</td>
+                        <td className="py-2 px-3 text-sm">{patient.contact}</td>
+                        <td className="py-2 px-3">
+                          <span className={`px-2 py-1 rounded text-xs ${patient.fee_status === 'paid' ? 'bg-green-100 text-green-800' : 'bg-red-100 text-red-800'}`}>
+                            {patient.fee_status}
+                          </span>
+                        </td>
+                        <td className="py-2 px-3">
+                          <div className="flex gap-1">
+                            <button 
+                              onClick={() => toggleFeeStatus(patient.id)} 
+                              className={`p-1 rounded ${patient.fee_status === 'paid' ? 'text-red-600 hover:bg-red-50' : 'text-green-600 hover:bg-green-50'} transition-colors duration-200`}
+                              disabled={loading}
+                              title={patient.fee_status === 'paid' ? 'Mark as unpaid' : 'Mark as paid'}
+                            >
+                              {patient.fee_status === 'paid' ? <X size={14} /> : <Check size={14} />}
+                            </button>
+                            <button 
+                              onClick={() => openEditModal(patient)} 
+                              className="p-1 text-blue-600 hover:bg-blue-50 rounded transition-colors duration-200"
+                              disabled={loading}
+                              title="Edit patient"
+                            >
+                              <Edit size={14} />
+                            </button>
+                            <button 
+                              onClick={() => {
+                                if (window.confirm(`Delete patient "${patient.name}"?`)) {
+                                  deletePatient(patient.id);
+                                }
+                              }} 
+                              className="p-1 text-red-600 hover:bg-red-50 rounded transition-colors duration-200"
+                              disabled={loading}
+                              title="Delete patient"
+                            >
+                              <Trash2 size={14} />
+                            </button>
+                          </div>
+                        </td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
+              
+              {/* For mobile screens - Card view */}
+              <div className="md:hidden">
+                {filteredPatients.map((patient, index) => (
+                  <div 
+                    key={patient.id}
+                    className="border-b p-3 hover:bg-gray-50"
+                    ref={index === filteredPatients.length - 1 ? lastPatientRef : null}
+                  >
+                    <div className="flex justify-between items-start mb-2">
+                      <div>
+                        <div className="font-medium">{patient.name}</div>
+                        <div className="text-sm text-gray-600">{patient.contact}</div>
+                      </div>
+                      <div className="flex items-center gap-1">
+                        <span className="bg-gray-200 text-gray-800 text-xs px-2 py-1 rounded">
+                          #{patient.serial_no}
+                        </span>
+                        <span className={`px-2 py-1 rounded text-xs ${patient.fee_status === 'paid' ? 'bg-green-100 text-green-800' : 'bg-red-100 text-red-800'}`}>
                           {patient.fee_status}
                         </span>
-                      </td>
-                      <td className="py-3 px-4 flex gap-2">
-                        
-                        <button 
-                          onClick={() => toggleFeeStatus(patient.id)} 
-                          className={`p-1.5 rounded ${patient.fee_status === 'paid' ? 'text-red-600 hover:bg-red-50' : 'text-green-600 hover:bg-green-50'} transition-colors duration-200`}
-                          disabled={loading}
-                          title={patient.fee_status === 'paid' ? 'Mark as unpaid' : 'Mark as paid'}
-                        >
-                          {patient.fee_status === 'paid' ? <X size={16} /> : <Check size={16} />}
-                        </button>
-                        <button 
-                          onClick={() => openEditModal(patient)} 
-                          className="p-1.5 text-blue-600 hover:bg-blue-50 rounded transition-colors duration-200"
-                          disabled={loading}
-                          title="Edit patient"
-                        >
-                          <Edit size={16} />
-                        </button>
-                        <button 
-                          onClick={() => {
-                            if (window.confirm(`Are you sure you want to delete patient "${patient.name}"?`)) {
-                              deletePatient(patient.id);
-                            }
-                          }} 
-                          className="p-1.5 text-red-600 hover:bg-red-50 rounded transition-colors duration-200"
-                          disabled={loading}
-                          title="Delete patient"
-                        >
-                          <Trash2 size={16} />
-                        </button>
-                      </td>
-                    </tr>
-                  ))}
-                </tbody>
-              </table>
+                      </div>
+                    </div>
+                    
+                    <div className="flex justify-end gap-2 mt-2">
+                      <button 
+                        onClick={() => toggleFeeStatus(patient.id)} 
+                        className={`p-1.5 rounded ${patient.fee_status === 'paid' ? 'bg-red-100 text-red-600' : 'bg-green-100 text-green-600'} transition-colors duration-200 flex items-center gap-1 text-xs`}
+                        disabled={loading}
+                      >
+                        {patient.fee_status === 'paid' ? <><X size={12} /> Unpaid</> : <><Check size={12} /> Paid</>}
+                      </button>
+                      <button 
+                        onClick={() => openEditModal(patient)} 
+                        className="p-1.5 bg-blue-100 text-blue-600 rounded transition-colors duration-200 flex items-center gap-1 text-xs"
+                        disabled={loading}
+                      >
+                        <Edit size={12} /> Edit
+                      </button>
+                      <button 
+                        onClick={() => {
+                          if (window.confirm(`Delete patient "${patient.name}"?`)) {
+                            deletePatient(patient.id);
+                          }
+                        }} 
+                        className="p-1.5 bg-red-100 text-red-600 rounded transition-colors duration-200 flex items-center gap-1 text-xs"
+                        disabled={loading}
+                      >
+                        <Trash2 size={12} /> Delete
+                      </button>
+                    </div>
+                  </div>
+                ))}
+              </div>
             </div>
           ) : (
-            <div className="text-center py-8 text-gray-500 bg-gray-50 rounded border">
+            <div className="text-center py-6 text-gray-500 bg-gray-50 rounded border">
               {loading ? (
                 <div className="animate-pulse">Loading patients...</div>
               ) : (
                 <>
-                  <Users size={36} className="mx-auto text-gray-400 mb-3" />
-                  <p>No patients added for this visit yet.</p>
+                  <Users size={32} className="mx-auto text-gray-400 mb-2" />
+                  <p className="text-sm">No patients added for this visit yet.</p>
                 </>
               )}
             </div>
@@ -501,18 +574,18 @@ const VisitPatients = () => {
         </div>
       </div>
 
-      {/* Edit Patient Modal */}
+      {/* Edit Patient Modal - Responsive version */}
       {showEditModal && (
-        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
-          <div className="bg-white rounded-lg shadow-xl p-6 w-full max-w-md">
-            <h2 className="text-xl font-bold mb-4 flex items-center gap-2">
-              <Edit size={20} className="text-blue-600" />
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
+          <div className="bg-white rounded-lg shadow-xl p-4 w-full max-w-md">
+            <h2 className="text-lg font-bold mb-3 flex items-center gap-2">
+              <Edit size={18} className="text-blue-600" />
               Edit Patient
             </h2>
             
             <form onSubmit={handleUpdatePatient}>
-              <div className="mb-4">
-                <label className="block text-gray-700 text-sm font-bold mb-2" htmlFor="edit-name">
+              <div className="mb-3">
+                <label className="block text-gray-700 text-sm font-bold mb-1" htmlFor="edit-name">
                   Patient Name
                 </label>
                 <input
@@ -521,13 +594,13 @@ const VisitPatients = () => {
                   name="name"
                   value={editFormData.name}
                   onChange={handleEditFormChange}
-                  className="p-2 border rounded w-full focus:ring-2 focus:ring-blue-300 focus:border-blue-500 outline-none"
+                  className="p-2 border rounded w-full focus:ring-2 focus:ring-blue-300 focus:border-blue-500 outline-none text-sm"
                   required
                 />
               </div>
               
-              <div className="mb-4">
-                <label className="block text-gray-700 text-sm font-bold mb-2" htmlFor="edit-contact">
+              <div className="mb-3">
+                <label className="block text-gray-700 text-sm font-bold mb-1" htmlFor="edit-contact">
                   Contact
                 </label>
                 <input
@@ -536,13 +609,13 @@ const VisitPatients = () => {
                   name="contact"
                   value={editFormData.contact}
                   onChange={handleEditFormChange}
-                  className="p-2 border rounded w-full focus:ring-2 focus:ring-blue-300 focus:border-blue-500 outline-none"
+                  className="p-2 border rounded w-full focus:ring-2 focus:ring-blue-300 focus:border-blue-500 outline-none text-sm"
                   required
                 />
               </div>
               
-              <div className="mb-6">
-                <label className="block text-gray-700 text-sm font-bold mb-2" htmlFor="edit-fee-status">
+              <div className="mb-4">
+                <label className="block text-gray-700 text-sm font-bold mb-1" htmlFor="edit-fee-status">
                   Fee Status
                 </label>
                 <select
@@ -550,7 +623,7 @@ const VisitPatients = () => {
                   name="fee_status"
                   value={editFormData.fee_status}
                   onChange={handleEditFormChange}
-                  className="p-2 border rounded w-full focus:ring-2 focus:ring-blue-300 focus:border-blue-500 outline-none"
+                  className="p-2 border rounded w-full focus:ring-2 focus:ring-blue-300 focus:border-blue-500 outline-none text-sm"
                   required
                 >
                   <option value="due">Due</option>
@@ -558,17 +631,17 @@ const VisitPatients = () => {
                 </select>
               </div>
               
-              <div className="flex justify-end gap-3">
+              <div className="flex justify-end gap-2">
                 <button
                   type="button"
                   onClick={() => setShowEditModal(false)}
-                  className="px-4 py-2 bg-gray-300 text-gray-800 rounded hover:bg-gray-400 transition-colors duration-200"
+                  className="px-3 py-2 bg-gray-300 text-gray-800 rounded hover:bg-gray-400 transition-colors duration-200 text-sm"
                 >
                   Cancel
                 </button>
                 <button
                   type="submit"
-                  className="px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700 transition-colors duration-200"
+                  className="px-3 py-2 bg-blue-600 text-white rounded hover:bg-blue-700 transition-colors duration-200 text-sm"
                   disabled={loading}
                 >
                   {loading ? 'Saving...' : 'Save Changes'}
