@@ -29,7 +29,7 @@ const Sidebar = () => {
   }, [mobileOpen]);
 
   const menuItems = [
-    { icon: LayoutDashboard, label: 'Command Center', path: '/' },
+    { icon: LayoutDashboard, label: 'Home', path: '/' },
     { icon: Users, label: 'Doctors', path: '/doctors' },
     { icon: MessageSquare, label: 'Patient Comms.', path: '/feedback' },
     { icon: Store, label: 'Doctor Schedule', path: '/doctor-schedule' },
